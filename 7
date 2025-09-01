@@ -128,7 +128,7 @@ CloseButton.BackgroundTransparency = 1
 CloseButton.Position = UDim2.new(1, -30, 0, 0)
 CloseButton.Size = UDim2.new(0, 30, 1, 0)
 CloseButton.Font = Enum.Font.GothamBold
-CloseButton.Text = "-"
+CloseButton.Text = "−"
 CloseButton.TextColor3 = Color3.fromRGB(0, 0, 0)
 CloseButton.TextSize = 18
 
@@ -217,7 +217,7 @@ local function CreateLoadingAnimation(text)
     LoadingTime.Position = UDim2.new(0, 0, 0, 35)
     LoadingTime.Size = UDim2.new(1, 0, 0, 20)
     LoadingTime.Font = Enum.Font.Gotham
-    LoadingTime.Text = "????????: 60 ??????"
+    LoadingTime.Text = "Осталось: 60 секунд"
     LoadingTime.TextColor3 = Color3.fromRGB(255, 255, 255)
     LoadingTime.TextSize = 12
     
@@ -249,12 +249,12 @@ local function CreateLoadingAnimation(text)
     for i = 1, 100 do
         local elapsed = tick() - startTime
         local remaining = totalTime - elapsed
-        LoadingTime.Text = "????????: " .. math.floor(remaining) .. " ??????"
+        LoadingTime.Text = "Осталось: " .. math.floor(remaining) .. " секунд"
         LoadingFill.Size = UDim2.new(i/100, 0, 1, 0)
         wait(0.6)
     end
     
-    LoadingTime.Text = "?????????!"
+    LoadingTime.Text = "Завершено!"
     wait(0.5)
     LoadingUI:Destroy()
 end
@@ -290,12 +290,12 @@ WiFiButton.MouseButton1Click:Connect(function()
     if wifiEnabled then
         WiFiButton.Text = "Wi-Fi Pinch: ON"
         WiFiButton.TextColor3 = Color3.fromRGB(100, 255, 100)
-        CreateLoadingAnimation("????????????? Wi-Fi Pinch...")
-        print("Wi-Fi pinch ???????????!")
+        CreateLoadingAnimation("Инициализация Wi-Fi Pinch...")
+        print("Wi-Fi pinch АКТИВИРОВАН!")
     else
         WiFiButton.Text = "Wi-Fi Pinch: OFF"
         WiFiButton.TextColor3 = Color3.fromRGB(255, 100, 100)
-        print("Wi-Fi pinch ????????!")
+        print("Wi-Fi pinch ОТКЛЮЧЕН!")
     end
 end)
 
@@ -330,11 +330,11 @@ AutoskipButton.MouseButton1Click:Connect(function()
     if autoskipEnabled then
         AutoskipButton.Text = "Autoskip: ON"
         AutoskipButton.TextColor3 = Color3.fromRGB(100, 255, 100)
-        CreateLoadingAnimation("????????????? Autoskip...")
-        print("Autoskip ???????????!")
+        CreateLoadingAnimation("Инициализация Autoskip...")
+        print("Autoskip АКТИВИРОВАН!")
     else
         AutoskipButton.Text = "Autoskip: OFF"
         AutoskipButton.TextColor3 = Color3.fromRGB(255, 100, 100)
-        print("Autoskip ????????!")
+        print("Autoskip ОТКЛЮЧЕН!")
     end
 end)
