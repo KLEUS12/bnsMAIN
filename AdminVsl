@@ -551,7 +551,7 @@ local function CreatePetSelectionMenu()
     PetTitle.Position = UDim2.new(0, 10, 0, 0)
     PetTitle.Size = UDim2.new(0, 120, 1, 0)
     PetTitle.Font = Enum.Font.GothamBold
-    PetTitle.Text = "Выбор питомца"
+    PetTitle.Text = "Add Pet"
     PetTitle.TextColor3 = Color3.fromRGB(0, 0, 0)
     PetTitle.TextSize = 14
     PetTitle.TextXAlignment = Enum.TextXAlignment.Left
