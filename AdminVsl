@@ -1,20 +1,42 @@
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+
+
+-- Защита от ошибок при загрузке
+local function safeWait(duration)
+    if duration then
+        local start = tick()
+        while tick() - start < duration do
+            RunService.Heartbeat:Wait()
+        end
+    else
+        RunService.Heartbeat:Wait()
+    end
+end
+
+
 local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+local PlayerGui
+repeat
+    safeWait()
+    PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+until PlayerGui
 
 
 local LoadingScreen = Instance.new("ScreenGui")
+LoadingScreen.Name = "BananasLoadingScreen"
+LoadingScreen.Parent = PlayerGui
+LoadingScreen.ZIndexBehavior = Enum.ZIndexBehavior.Global
+LoadingScreen.DisplayOrder = 9999
+LoadingScreen.IgnoreGuiInset = true
+
+
 local MainFrame = Instance.new("Frame")
 local LoadingBar = Instance.new("Frame")
 local Fill = Instance.new("Frame")
 local Title = Instance.new("TextLabel")
 local Percent = Instance.new("TextLabel")
-
-
-LoadingScreen.Name = "BananasLoadingScreen"
-LoadingScreen.Parent = PlayerGui
-LoadingScreen.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
 
 MainFrame.Name = "MainFrame"
@@ -24,6 +46,7 @@ MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 MainFrame.BorderSizePixel = 0
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
 MainFrame.Size = UDim2.new(0, 300, 0, 120)
+MainFrame.ZIndex = 100
 
 
 local corner = Instance.new("UICorner")
@@ -41,6 +64,7 @@ Title.Font = Enum.Font.GothamBold
 Title.Text = "BANANAS"
 Title.TextColor3 = Color3.fromRGB(255, 203, 51)
 Title.TextSize = 20
+Title.ZIndex = 101
 
 
 LoadingBar.Name = "LoadingBar"
@@ -50,6 +74,7 @@ LoadingBar.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 LoadingBar.BorderSizePixel = 0
 LoadingBar.Position = UDim2.new(0.5, 0, 0.65, 0)
 LoadingBar.Size = UDim2.new(0.8, 0, 0, 12)
+LoadingBar.ZIndex = 101
 
 
 local barCorner = Instance.new("UICorner")
@@ -62,6 +87,7 @@ Fill.Parent = LoadingBar
 Fill.BackgroundColor3 = Color3.fromRGB(255, 203, 51)
 Fill.BorderSizePixel = 0
 Fill.Size = UDim2.new(0, 0, 1, 0)
+Fill.ZIndex = 102
 
 
 local fillCorner = Instance.new("UICorner")
@@ -79,23 +105,30 @@ Percent.Font = Enum.Font.Gotham
 Percent.Text = "0%"
 Percent.TextColor3 = Color3.fromRGB(255, 255, 255)
 Percent.TextSize = 14
+Percent.ZIndex = 103
 
 
 for i = 1, 100 do
     Fill.Size = UDim2.new(i/100, 0, 1, 0)
     Percent.Text = i.."%"
-    wait(0.06)
+    safeWait(0.06)
 end
 
 
-wait(0.5)
+safeWait(0.5)
 LoadingScreen:Destroy()
+
+
+local currentMenu = nil
+local isMinimized = false
 
 
 local MainUI = Instance.new("ScreenGui")
 MainUI.Name = "BananasMainUI"
 MainUI.Parent = PlayerGui
-MainUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+MainUI.ZIndexBehavior = Enum.ZIndexBehavior.Global
+MainUI.DisplayOrder = 9999
+MainUI.IgnoreGuiInset = true
 
 
 local MainFrame = Instance.new("Frame")
@@ -105,8 +138,9 @@ MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 MainFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 MainFrame.BorderSizePixel = 0
 MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-MainFrame.Size = UDim2.new(0, 250, 0, 230)
-MainFrame.Visible = true
+MainFrame.Size = UDim2.new(0, 250, 0, 280)
+MainFrame.Visible = false
+MainFrame.ZIndex = 100
 
 
 local mainCorner = Instance.new("UICorner")
@@ -120,6 +154,7 @@ Header.Parent = MainFrame
 Header.BackgroundColor3 = Color3.fromRGB(255, 203, 51)
 Header.BorderSizePixel = 0
 Header.Size = UDim2.new(1, 0, 0, 30)
+Header.ZIndex = 101
 
 
 local headerCorner = Instance.new("UICorner")
@@ -138,6 +173,7 @@ TitleText.Text = "BANANAS"
 TitleText.TextColor3 = Color3.fromRGB(0, 0, 0)
 TitleText.TextSize = 16
 TitleText.TextXAlignment = Enum.TextXAlignment.Left
+TitleText.ZIndex = 102
 
 
 local CloseButton = Instance.new("TextButton")
@@ -150,6 +186,7 @@ CloseButton.Font = Enum.Font.GothamBold
 CloseButton.Text = "−"
 CloseButton.TextColor3 = Color3.fromRGB(0, 0, 0)
 CloseButton.TextSize = 18
+CloseButton.ZIndex = 102
 
 
 local ButtonsContainer = Instance.new("Frame")
@@ -159,6 +196,7 @@ ButtonsContainer.Position = UDim2.new(0, 0, 0, 40)
 ButtonsContainer.Size = UDim2.new(1, 0, 1, -40)
 ButtonsContainer.BackgroundTransparency = 1
 ButtonsContainer.BorderSizePixel = 0
+ButtonsContainer.ZIndex = 101
 
 
 local MinimizedIcon = Instance.new("TextButton")
@@ -169,11 +207,12 @@ MinimizedIcon.BackgroundColor3 = Color3.fromRGB(255, 203, 51)
 MinimizedIcon.BorderSizePixel = 0
 MinimizedIcon.Position = UDim2.new(1, -10, 0, 10)
 MinimizedIcon.Size = UDim2.new(0, 70, 0, 25)
-MinimizedIcon.Visible = false
+MinimizedIcon.Visible = true
 MinimizedIcon.Font = Enum.Font.GothamBold
 MinimizedIcon.Text = "BANANAS"
 MinimizedIcon.TextColor3 = Color3.fromRGB(0, 0, 0)
 MinimizedIcon.TextSize = 11
+MinimizedIcon.ZIndex = 1000
 
 
 local iconCorner = Instance.new("UICorner")
@@ -181,25 +220,34 @@ iconCorner.CornerRadius = UDim.new(0, 6)
 iconCorner.Parent = MinimizedIcon
 
 
-local isMinimized = false
+local function ShowMenu(menu)
+    if currentMenu then
+        currentMenu.Visible = false
+    end
+    currentMenu = menu
+    if not isMinimized then
+        currentMenu.Visible = true
+    end
+    MinimizedIcon.Visible = isMinimized
+end
+
+
+local function ToggleMinimize()
+    isMinimized = not isMinimized
+    if currentMenu then
+        currentMenu.Visible = not isMinimized
+    end
+    MinimizedIcon.Visible = isMinimized
+end
 
 
 CloseButton.MouseButton1Click:Connect(function()
-    isMinimized = not isMinimized
-    if isMinimized then
-        MainFrame.Visible = false
-        MinimizedIcon.Visible = true
-    else
-        MainFrame.Visible = true
-        MinimizedIcon.Visible = false
-    end
+    ToggleMinimize()
 end)
 
 
 MinimizedIcon.MouseButton1Click:Connect(function()
-    isMinimized = false
-    MainFrame.Visible = true
-    MinimizedIcon.Visible = false
+    ToggleMinimize()
 end)
 
 
@@ -212,7 +260,9 @@ local function CreateLoadingAnimation(duration, text)
     
     LoadingUI.Name = "LoadingUI"
     LoadingUI.Parent = PlayerGui
-    LoadingUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    LoadingUI.ZIndexBehavior = Enum.ZIndexBehavior.Global
+    LoadingUI.DisplayOrder = 10000
+    LoadingUI.IgnoreGuiInset = true
     
     LoadingFrame.Name = "LoadingFrame"
     LoadingFrame.Parent = LoadingUI
@@ -221,6 +271,7 @@ local function CreateLoadingAnimation(duration, text)
     LoadingFrame.BorderSizePixel = 0
     LoadingFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
     LoadingFrame.Size = UDim2.new(0, 200, 0, 80)
+    LoadingFrame.ZIndex = 100
     
     local loadingCorner = Instance.new("UICorner")
     loadingCorner.CornerRadius = UDim.new(0, 10)
@@ -235,6 +286,7 @@ local function CreateLoadingAnimation(duration, text)
     LoadingText.Text = text
     LoadingText.TextColor3 = Color3.fromRGB(255, 203, 51)
     LoadingText.TextSize = 14
+    LoadingText.ZIndex = 101
     
     LoadingBar.Name = "LoadingBar"
     LoadingBar.Parent = LoadingFrame
@@ -243,6 +295,7 @@ local function CreateLoadingAnimation(duration, text)
     LoadingBar.BorderSizePixel = 0
     LoadingBar.Position = UDim2.new(0.5, 0, 0.7, 0)
     LoadingBar.Size = UDim2.new(0.8, 0, 0, 10)
+    LoadingBar.ZIndex = 101
     
     local barCorner2 = Instance.new("UICorner")
     barCorner2.CornerRadius = UDim.new(0, 8)
@@ -253,6 +306,7 @@ local function CreateLoadingAnimation(duration, text)
     LoadingFill.BackgroundColor3 = Color3.fromRGB(100, 255, 100)
     LoadingFill.BorderSizePixel = 0
     LoadingFill.Size = UDim2.new(0, 0, 1, 0)
+    LoadingFill.ZIndex = 102
     
     local fillCorner2 = Instance.new("UICorner")
     fillCorner2.CornerRadius = UDim.new(0, 8)
@@ -261,10 +315,10 @@ local function CreateLoadingAnimation(duration, text)
     local stepTime = duration / 100
     for i = 1, 100 do
         LoadingFill.Size = UDim2.new(i/100, 0, 1, 0)
-        wait(stepTime)
+        safeWait(stepTime)
     end
     
-    wait(0.3)
+    safeWait(0.3)
     LoadingUI:Destroy()
 end
 
@@ -276,11 +330,12 @@ WiFiButton.Parent = ButtonsContainer
 WiFiButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 WiFiButton.BorderSizePixel = 0
 WiFiButton.Size = UDim2.new(0.9, 0, 0, 40)
-WiFiButton.Position = UDim2.new(0.05, 0, 0.1, 0)
+WiFiButton.Position = UDim2.new(0.05, 0, 0.05, 0)
 WiFiButton.Font = Enum.Font.Gotham
 WiFiButton.Text = "Wi-Fi Pinch: OFF"
 WiFiButton.TextColor3 = Color3.fromRGB(255, 100, 100)
 WiFiButton.TextSize = 14
+WiFiButton.ZIndex = 102
 
 
 local buttonCorner = Instance.new("UICorner")
@@ -289,12 +344,16 @@ buttonCorner.Parent = WiFiButton
 
 
 WiFiButton.MouseEnter:Connect(function()
-    TweenService:Create(WiFiButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(55, 55, 55)}):Play()
+    pcall(function()
+        TweenService:Create(WiFiButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(55, 55, 55)}):Play()
+    end)
 end)
 
 
 WiFiButton.MouseLeave:Connect(function()
-    TweenService:Create(WiFiButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 45, 45)}):Play()
+    pcall(function()
+        TweenService:Create(WiFiButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 45, 45)}):Play()
+    end)
 end)
 
 
@@ -304,14 +363,10 @@ WiFiButton.MouseButton1Click:Connect(function()
     if wifiEnabled then
         WiFiButton.Text = "Wi-Fi Pinch: ON"
         WiFiButton.TextColor3 = Color3.fromRGB(100, 255, 100)
-        
         CreateLoadingAnimation(3, "Инициализация...")
-        print("Wi-Fi pinch АКТИВИРОВАН!")
-        
     else
         WiFiButton.Text = "Wi-Fi Pinch: OFF"
         WiFiButton.TextColor3 = Color3.fromRGB(255, 100, 100)
-        print("Wi-Fi pinch ОТКЛЮЧЕН!")
     end
 end)
 
@@ -323,11 +378,12 @@ AutoskipButton.Parent = ButtonsContainer
 AutoskipButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
 AutoskipButton.BorderSizePixel = 0
 AutoskipButton.Size = UDim2.new(0.9, 0, 0, 40)
-AutoskipButton.Position = UDim2.new(0.05, 0, 0, 60)
+AutoskipButton.Position = UDim2.new(0.05, 0, 0, 70)
 AutoskipButton.Font = Enum.Font.Gotham
 AutoskipButton.Text = "Autoskip: OFF"
 AutoskipButton.TextColor3 = Color3.fromRGB(255, 100, 100)
 AutoskipButton.TextSize = 14
+AutoskipButton.ZIndex = 102
 
 
 local autoskipCorner = Instance.new("UICorner")
@@ -336,12 +392,16 @@ autoskipCorner.Parent = AutoskipButton
 
 
 AutoskipButton.MouseEnter:Connect(function()
-    TweenService:Create(AutoskipButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(55, 55, 55)}):Play()
+    pcall(function()
+        TweenService:Create(AutoskipButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(55, 55, 55)}):Play()
+    end)
 end)
 
 
 AutoskipButton.MouseLeave:Connect(function()
-    TweenService:Create(AutoskipButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 45, 45)}):Play()
+    pcall(function()
+        TweenService:Create(AutoskipButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 45, 45)}):Play()
+    end)
 end)
 
 
@@ -351,13 +411,269 @@ AutoskipButton.MouseButton1Click:Connect(function()
     if autoskipEnabled then
         AutoskipButton.Text = "Autoskip: ON"
         AutoskipButton.TextColor3 = Color3.fromRGB(100, 255, 100)
-        
         CreateLoadingAnimation(5, "Инициализация...")
-        print("Autoskip АКТИВИРОВАН!")
-        
     else
         AutoskipButton.Text = "Autoskip: OFF"
         AutoskipButton.TextColor3 = Color3.fromRGB(255, 100, 100)
-        print("Autoskip ОТКЛЮЧЕН!")
     end
 end)
+
+
+local separateEnabled = false
+local separateInitialized = false
+local SeparateButton = Instance.new("TextButton")
+SeparateButton.Name = "SeparateButton"
+SeparateButton.Parent = ButtonsContainer
+SeparateButton.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+SeparateButton.BorderSizePixel = 0
+SeparateButton.Size = UDim2.new(0.9, 0, 0, 40)
+SeparateButton.Position = UDim2.new(0.05, 0, 0, 140)
+SeparateButton.Font = Enum.Font.Gotham
+SeparateButton.Text = "Separate Ticket: OFF"
+SeparateButton.TextColor3 = Color3.fromRGB(255, 100, 100)
+SeparateButton.TextSize = 14
+SeparateButton.ZIndex = 102
+
+
+local separateCorner = Instance.new("UICorner")
+separateCorner.CornerRadius = UDim.new(0, 8)
+separateCorner.Parent = SeparateButton
+
+
+SeparateButton.MouseEnter:Connect(function()
+    pcall(function()
+        TweenService:Create(SeparateButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(55, 55, 55)}):Play()
+    end)
+end)
+
+
+SeparateButton.MouseLeave:Connect(function()
+    pcall(function()
+        TweenService:Create(SeparateButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(45, 45, 45)}):Play()
+    end)
+end)
+
+
+local function ShowNotification(message)
+    local NotificationUI = Instance.new("ScreenGui")
+    local NotificationFrame = Instance.new("Frame")
+    local NotificationText = Instance.new("TextLabel")
+    
+    NotificationUI.Name = "NotificationUI"
+    NotificationUI.Parent = PlayerGui
+    NotificationUI.ZIndexBehavior = Enum.ZIndexBehavior.Global
+    NotificationUI.DisplayOrder = 10001
+    NotificationUI.IgnoreGuiInset = true
+    
+    NotificationFrame.Name = "NotificationFrame"
+    NotificationFrame.Parent = NotificationUI
+    NotificationFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    NotificationFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    NotificationFrame.BorderSizePixel = 0
+    NotificationFrame.Position = UDim2.new(0.5, 0, 0.2, 0)
+    NotificationFrame.Size = UDim2.new(0, 250, 0, 60)
+    NotificationFrame.ZIndex = 1000
+    
+    local notifCorner = Instance.new("UICorner")
+    notifCorner.CornerRadius = UDim.new(0, 10)
+    notifCorner.Parent = NotificationFrame
+    
+    NotificationText.Name = "NotificationText"
+    NotificationText.Parent = NotificationFrame
+    NotificationText.BackgroundTransparency = 1
+    NotificationText.Position = UDim2.new(0, 10, 0, 0)
+    NotificationText.Size = UDim2.new(1, -20, 1, 0)
+    NotificationText.Font = Enum.Font.GothamBold
+    NotificationText.Text = message
+    NotificationText.TextColor3 = Color3.fromRGB(255, 203, 51)
+    NotificationText.TextSize = 14
+    NotificationText.TextWrapped = true
+    NotificationText.ZIndex = 1001
+    
+    pcall(function()
+        NotificationFrame.Size = UDim2.new(0, 0, 0, 60)
+        TweenService:Create(NotificationFrame, TweenInfo.new(0.3), {Size = UDim2.new(0, 250, 0, 60)}):Play()
+    end)
+    
+    spawn(function()
+        safeWait(3)
+        pcall(function()
+            TweenService:Create(NotificationFrame, TweenInfo.new(0.3), {Size = UDim2.new(0, 0, 0, 60)}):Play()
+            safeWait(0.3)
+            NotificationUI:Destroy()
+        end)
+    end)
+end
+
+
+local function CreatePetSelectionMenu()
+    local PetMenuUI = Instance.new("ScreenGui")
+    local PetMenuFrame = Instance.new("Frame")
+    local BackButton = Instance.new("TextButton")
+    local PetsList = Instance.new("ScrollingFrame")
+    
+    PetMenuUI.Name = "PetMenuUI"
+    PetMenuUI.Parent = PlayerGui
+    PetMenuUI.ZIndexBehavior = Enum.ZIndexBehavior.Global
+    PetMenuUI.DisplayOrder = 10000
+    PetMenuUI.IgnoreGuiInset = true
+    
+    PetMenuFrame.Name = "PetMenuFrame"
+    PetMenuFrame.Parent = PetMenuUI
+    PetMenuFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    PetMenuFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    PetMenuFrame.BorderSizePixel = 0
+    PetMenuFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+    PetMenuFrame.Size = UDim2.new(0, 220, 0, 280)
+    PetMenuFrame.Visible = false
+    PetMenuFrame.ZIndex = 100
+    
+    local petCorner = Instance.new("UICorner")
+    petCorner.CornerRadius = UDim.new(0, 10)
+    petCorner.Parent = PetMenuFrame
+    
+    local PetHeader = Instance.new("Frame")
+    PetHeader.Name = "PetHeader"
+    PetHeader.Parent = PetMenuFrame
+    PetHeader.BackgroundColor3 = Color3.fromRGB(255, 203, 51)
+    PetHeader.BorderSizePixel = 0
+    PetHeader.Size = UDim2.new(1, 0, 0, 30)
+    PetHeader.ZIndex = 101
+    
+    local petHeaderCorner = Instance.new("UICorner")
+    petHeaderCorner.CornerRadius = UDim.new(0, 10)
+    petHeaderCorner.Parent = PetHeader
+    
+    local PetTitle = Instance.new("TextLabel")
+    PetTitle.Name = "PetTitle"
+    PetTitle.Parent = PetHeader
+    PetTitle.BackgroundTransparency = 1
+    PetTitle.Position = UDim2.new(0, 10, 0, 0)
+    PetTitle.Size = UDim2.new(0, 120, 1, 0)
+    PetTitle.Font = Enum.Font.GothamBold
+    PetTitle.Text = "Выбор питомца"
+    PetTitle.TextColor3 = Color3.fromRGB(0, 0, 0)
+    PetTitle.TextSize = 14
+    PetTitle.TextXAlignment = Enum.TextXAlignment.Left
+    PetTitle.ZIndex = 102
+    
+    local PetCloseButton = Instance.new("TextButton")
+    PetCloseButton.Name = "PetCloseButton"
+    PetCloseButton.Parent = PetHeader
+    PetCloseButton.BackgroundTransparency = 1
+    PetCloseButton.Position = UDim2.new(1, -30, 0, 0)
+    PetCloseButton.Size = UDim2.new(0, 30, 1, 0)
+    PetCloseButton.Font = Enum.Font.GothamBold
+    PetCloseButton.Text = "−"
+    PetCloseButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+    PetCloseButton.TextSize = 18
+    PetCloseButton.ZIndex = 102
+    
+    BackButton.Name = "BackButton"
+    BackButton.Parent = PetHeader
+    BackButton.BackgroundTransparency = 1
+    BackButton.Position = UDim2.new(1, -60, 0, 0)
+    BackButton.Size = UDim2.new(0, 30, 1, 0)
+    BackButton.Font = Enum.Font.GothamBold
+    BackButton.Text = "←"
+    BackButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+    BackButton.TextSize = 18
+    BackButton.ZIndex = 102
+    
+    PetsList.Name = "PetsList"
+    PetsList.Parent = PetMenuFrame
+    PetsList.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    PetsList.BorderSizePixel = 0
+    PetsList.Position = UDim2.new(0.05, 0, 0.1, 0)
+    PetsList.Size = UDim2.new(0.9, 0, 0, 220)
+    PetsList.CanvasSize = UDim2.new(0, 0, 2, 0)
+    PetsList.ScrollBarThickness = 4
+    PetsList.Visible = true
+    PetsList.ZIndex = 102
+    
+    local listCorner = Instance.new("UICorner")
+    listCorner.CornerRadius = UDim.new(0, 8)
+    listCorner.Parent = PetsList
+    
+    local pets = {
+        "RACCOON", "BUTTERFLY", "DRAGONFLY", "MIMIC OCTOPUS", "KITSUNE",
+        "DISCO BEE", "QUEEN BEE", "FENNEC", "COCKATRICE", "FERRET",
+        "T-REX", "SPINOSAURUS", "GRIFFIN"
+    }
+    
+    local function CreatePetButton(petName, index)
+        local PetButton = Instance.new("TextButton")
+        PetButton.Name = petName.."Button"
+        PetButton.Parent = PetsList
+        PetButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+        PetButton.BorderSizePixel = 0
+        PetButton.Size = UDim2.new(0.95, 0, 0, 25)
+        PetButton.Position = UDim2.new(0.025, 0, 0, (index-1)*30)
+        PetButton.Font = Enum.Font.Gotham
+        PetButton.Text = petName
+        PetButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+        PetButton.TextSize = 10
+        PetButton.ZIndex = 103
+        
+        local petBtnCorner = Instance.new("UICorner")
+        petBtnCorner.CornerRadius = UDim.new(0, 6)
+        petBtnCorner.Parent = PetButton
+        
+        PetButton.MouseEnter:Connect(function()
+            pcall(function()
+                TweenService:Create(PetButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}):Play()
+            end)
+        end)
+        
+        PetButton.MouseLeave:Connect(function()
+            pcall(function()
+                TweenService:Create(PetButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}):Play()
+            end)
+        end)
+        
+        PetButton.MouseButton1Click:Connect(function()
+            ShowNotification("Добавлен " .. petName)
+        end)
+    end
+    
+    for i, pet in ipairs(pets) do
+        CreatePetButton(pet, i)
+    end
+    
+    PetCloseButton.MouseButton1Click:Connect(function()
+        ToggleMinimize()
+    end)
+    
+    BackButton.MouseButton1Click:Connect(function()
+        PetMenuUI:Destroy()
+        ShowMenu(MainFrame)
+    end)
+    
+    return PetMenuFrame
+end
+
+
+SeparateButton.MouseButton1Click:Connect(function()
+    separateEnabled = not separateEnabled
+    
+    if separateEnabled then
+        SeparateButton.Text = "Separate Ticket: ON"
+        SeparateButton.TextColor3 = Color3.fromRGB(100, 255, 100)
+        
+        if not separateInitialized then
+            CreateLoadingAnimation(3, "Инициализация...")
+            separateInitialized = true
+            safeWait(0.5)
+        end
+        
+        local petMenu = CreatePetSelectionMenu()
+        ShowMenu(petMenu)
+    else
+        SeparateButton.Text = "Separate Ticket: OFF"
+        SeparateButton.TextColor3 = Color3.fromRGB(255, 100, 100)
+        ShowMenu(MainFrame)
+    end
+end)
+
+
+ShowMenu(MainFrame)
